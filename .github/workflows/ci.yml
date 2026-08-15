@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Build (release)
+        run: |
+          swift build -c release \
+            --scratch-path .build-release \
+            --cache-path .spm/cache \
+            --config-path .spm/config \
+            --security-path .spm/security
+
+      - name: Run self tests
+        run: .build-release/release/HealthReaderLite --selftest
+
+      - name: Package .app
+        run: |
+          ./Scripts/build_app.sh
+          echo "PACKAGED_APP=$(pwd)/build/HealthReaderLite.app" >> "$GITHUB_ENV"
+
+      - name: Smoke test (fetch real feed)
+        run: |
+          .build-release/release/HealthReaderLite --fetch-test "https://hnrss.org/frontpage" \
+            || echo "::warning::网络源暂不可用（CI 偶发），构建与自测已通过"
+
+      - name: Upload artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: HealthReaderLite.app
+          path: build/HealthReaderLite.app
+          retention-days: 14

@@ -1,0 +1,15 @@
+# 构建产物
+.build*/
+build/
+.spm/
+.swiftpm/
+
+# 图标生成中间产物
+Scripts/out/
+
+# 系统文件
+.DS_Store
+*.xcodeproj
+
+# 日志
+*.log
