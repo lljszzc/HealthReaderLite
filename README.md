@@ -29,8 +29,9 @@ HealthReaderLite 是常驻菜单栏的轻量 RSS 阅读器：一杯茶的时间�
 
 ## 📷 截图
 
-> 待补充：菜单栏图标与进度环 / 消息小窗口 / 阅读窗口 / 设置面板
-> （替换为你的实际截图后即可让项目一目了然）
+| 消息小窗口（菜单栏点击展开） | Reeder 风格阅读窗口 |
+|:---:|:---:|
+| <img src="screenshot/menubar.jpg" width="280" alt="消息小窗口"/> | <img src="screenshot/content.jpg" width="600" alt="阅读窗口"/> |
 
 ## 📦 安装
 
