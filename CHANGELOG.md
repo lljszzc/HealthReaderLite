@@ -25,4 +25,4 @@
 - 支持 macOS 15+（macOS 26 设计语言）
 - 无任何遥测/统计上报，纯本地解析与呈现
 
-[1.0.0]: https://github.com/your-name/HealthReaderLite/releases/tag/v1.0.0
+[1.0.0]: https://github.com/lljszzc/HealthReaderLite/releases/tag/v1.0.0

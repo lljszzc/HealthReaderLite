@@ -9,8 +9,8 @@
 [![macOS](https://img.shields.io/badge/macOS-15%2B-28a745?logo=apple&logoColor=white)](https://www.apple.com/macos/)
 [![Swift](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)](https://www.swift.org)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/your-name/HealthReaderLite/ci.yml?branch=main&label=CI&logo=github)](https://github.com/your-name/HealthReaderLite/actions)
-[![Release](https://img.shields.io/github/v/release/your-name/HealthReaderLite?label=Release&logo=github)](https://github.com/your-name/HealthReaderLite/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/lljszzc/HealthReaderLite/ci.yml?branch=main&label=CI&logo=github)](https://github.com/lljszzc/HealthReaderLite/actions)
+[![Release](https://img.shields.io/github/v/release/lljszzc/HealthReaderLite?label=Release&logo=github)](https://github.com/lljszzc/HealthReaderLite/releases)
 
 </div>
 
@@ -36,7 +36,7 @@ HealthReaderLite 是常驻菜单栏的轻量 RSS 阅读器：一杯茶的时间�
 
 ### 方式一：下载 Release（推荐）
 
-前往 [Releases](https://github.com/your-name/HealthReaderLite/releases) 下载 `HealthReaderLite.app.zip`，
+前往 [Releases](https://github.com/lljszzc/HealthReaderLite/releases) 下载 `HealthReaderLite.app.zip`，
 解压后拖入"应用程序"（或直接双击运行）。
 
 首次启动会预置 3 个订阅（Hacker News / The Verge / 少数派）并自动抓取文章。
@@ -49,7 +49,7 @@ HealthReaderLite 是常驻菜单栏的轻量 RSS 阅读器：一杯茶的时间�
 需要 Xcode（Swift 6+）与 macOS 15+：
 
 ```bash
-git clone https://github.com/your-name/HealthReaderLite.git
+git clone https://github.com/lljszzc/HealthReaderLite.git
 cd HealthReaderLite
 ./Scripts/build_app.sh          # 编译 + 生成图标 + 打包 .app + ad-hoc 签名
 open build/HealthReaderLite.app # 运行
