@@ -69,6 +69,20 @@ final class StatusController: NSObject, NSPopoverDelegate {
         togglePopover()
     }
 
+    /// 菜单栏当前是否可见（auto-hide 菜单栏或全屏时不可见）
+    var isMenuBarVisible: Bool {
+        statusItem.button?.window?.isVisible ?? false
+    }
+
+    /// 打开最新一篇资讯的阅读窗口（系统通知"看看新闻"入口）
+    func openLatestNews() {
+        guard let first = store.items.first else {
+            showPopover()
+            return
+        }
+        onOpenItem(first)
+    }
+
     // MARK: - 状态栏图标（叶子 + 可选的久坐进度环）
 
     /// 更新图标：progress 为 0~1（距下次起身提醒的完成度）；传 nil 或关闭开关时不显示进度环

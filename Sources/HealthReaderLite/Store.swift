@@ -204,6 +204,14 @@ final class AppStore: ObservableObject {
         save()
     }
 
+    /// 顶部快捷开关：开/关久坐提醒（触发 $settings 发布 → AppDelegate 重排计时）
+    func setReminderEnabled(_ enabled: Bool) {
+        guard settings.reminderEnabled != enabled else { return }
+        settings.reminderEnabled = enabled
+        save()
+        Log.t("久坐提醒快捷开关：\(enabled ? "开启" : "关闭")")
+    }
+
     /// 开启/关闭某订阅的全文抓取
     func setFeedFetchFullText(_ id: UUID, _ value: Bool) {
         guard let idx = feeds.firstIndex(where: { $0.id == id }) else { return }

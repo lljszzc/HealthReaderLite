@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import SwiftUI
+import UserNotifications
 
 // MARK: - 应用主代理
 
@@ -45,6 +46,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         observeChanges()
         armRefreshTimer()
         reminder.arm()
+
+        // 系统通知：注册代理与通知分类
+        UNUserNotificationCenter.current().delegate = self
+        ReminderEngine.registerNotificationCategory()
+
+        // 启动后延迟请求通知权限（避免刚启动就打扰），并缓存授权状态
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            guard let self, self.launched else { return }
+            await self.reminder.requestAuthorizationIfNeeded()
+        }
 
         // 启动后延迟 2 秒自动刷新一次
         Task { [weak self] in
@@ -153,15 +165,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         RunLoop.main.add(progressTimer, forMode: .common)
         self.progressTimer = progressTimer
 
-        // 设置变化 → 重排自动更新与久坐提醒，并即时刷新图标（环开关/间隔变更）
+        // 设置变化 → 仅在相关字段真正变化时重排对应计时器，避免打断进行中的"稍后"提醒
+        var lastSettings = store.settings
         store.$settings
             .dropFirst()
             .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] newSettings in
                 guard let self else { return }
-                self.armRefreshTimer()
-                self.reminder.arm()
-                self.status?.updateIcon(progress: self.reminder.progress)
+                if newSettings.refreshMinutes != lastSettings.refreshMinutes {
+                    self.armRefreshTimer()
+                }
+                if newSettings.reminderEnabled != lastSettings.reminderEnabled
+                    || newSettings.reminderMinutes != lastSettings.reminderMinutes {
+                    self.reminder.handleSettingsChanged()
+                }
+                if newSettings.reminderRingEnabled != lastSettings.reminderRingEnabled
+                    || newSettings.reminderEnabled != lastSettings.reminderEnabled
+                    || newSettings.reminderMinutes != lastSettings.reminderMinutes {
+                    self.status?.updateIcon(progress: self.reminder.progress)
+                }
+                lastSettings = newSettings
             }
             .store(in: &cancellables)
     }
@@ -205,5 +228,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.setActivationPolicy(.accessory)
             Log.t("阅读窗口已关闭，回到纯 menubar 模式（activationPolicy=\(NSApp.activationPolicy().rawValue)）")
         }
+    }
+}
+
+// MARK: - 系统通知代理（久坐提醒渠道）
+
+extension AppDelegate: @preconcurrency UNUserNotificationCenterDelegate {
+    /// 应用前台运行时也展示通知横幅
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner]) // 声音由 content.sound 控制，避免重复发声
+    }
+
+    /// 用户点击通知主体或 action 按钮
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            switch response.actionIdentifier {
+            case UNNotificationDefaultActionIdentifier:
+                // 点击通知主体 → 打开消息小窗口
+                self.status?.showPopover()
+            case ReminderEngine.actionViewNews,
+                 ReminderEngine.actionSnooze,
+                 ReminderEngine.actionDismiss:
+                self.reminder.handleNotification(action: response.actionIdentifier)
+            default:
+                self.reminder.handleNotification(action: nil)
+            }
+        }
+        completionHandler()
     }
 }

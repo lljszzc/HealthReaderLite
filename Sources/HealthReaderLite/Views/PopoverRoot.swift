@@ -115,6 +115,26 @@ struct PopoverRoot: View {
             }
             .buttonStyle(.plain)
             .help("添加订阅")
+
+            Divider()
+                .frame(height: 14)
+
+            // 久坐提醒快捷开关（即时生效，设置页同样可调）
+            HStack(spacing: 5) {
+                Image(systemName: store.settings.reminderEnabled
+                      ? "figure.stand"
+                      : "figure.stand.line.dotted.figure.stand")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(store.settings.reminderEnabled ? Color.green : Color.secondary)
+                Toggle("", isOn: Binding(
+                    get: { store.settings.reminderEnabled },
+                    set: { store.setReminderEnabled($0) }
+                ))
+                .labelsHidden()
+                .toggleStyle(.switch)
+                .controlSize(.mini)
+            }
+            .help(store.settings.reminderEnabled ? "久坐提醒已开启，点击关闭" : "久坐提醒已关闭，点击开启")
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 9)
